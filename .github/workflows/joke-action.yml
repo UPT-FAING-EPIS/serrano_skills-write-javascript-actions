@@ -1,0 +1,28 @@
+name: Joke Action
+run-name: Dad Joke for issue ${{ github.event.issue.number }} by ${{ github.event.comment.user.login }}
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  joke:
+    if: startsWith(github.event.comment.body, '/joke')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Get Joke
+        id: get-joke
+        uses: ./ # Esto indica que use la acción local que creaste en los pasos previos
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: ${{ steps.get-joke.outputs.joke }}
